@@ -3,459 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Virtual friendship bracelet to connect with friends through colorful animations">
     <title>Friendship Bracelet Connection</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
         }
-        
+
         body {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 1.5rem;
             color: #333;
         }
-        
+
         .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 500px;
+            width: min(100%, 32rem);
             background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 1.25rem;
+            padding: 1.875rem;
+            box-shadow: 0 0.625rem 1.875rem rgba(0,0,0,0.1);
             text-align: center;
         }
-        
+
         h1 {
             color: #6a5acd;
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            margin-bottom: 0.9375rem;
         }
-        
+
         .subtitle {
             color: #7b68ee;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
+            font-size: 1rem;
+            margin-bottom: 1.875rem;
             line-height: 1.5;
         }
-        
+
         .bracelet {
             width: 100%;
-            height: 120px;
+            height: 7.5rem;
             background: #f8f9fa;
-            border-radius: 60px;
+            border-radius: 3.75rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 25px;
-            margin: 30px 0;
-            position: relative;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+            padding: 0 1.5625rem;
+            margin: 1.875rem 0;
+            box-shadow: inset 0 0 0.9375rem rgba(0,0,0,0.1);
             border: 2px solid #e9ecef;
         }
-        
+
         .bead {
-            width: 70px;
-            height: 70px;
+            width: 4.375rem;
+            height: 4.375rem;
             border-radius: 50%;
             background: #ddd;
-            transition: all 0.5s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .bead.active {
             transform: scale(1.15);
-            box-shadow: 0 0 25px rgba(255,215,0,0.9);
+            box-shadow: 0 0 1.5625rem rgba(255,215,0,0.9);
         }
-        
+
         .bead-1.active { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); }
         .bead-2.active { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
         .bead-3.active { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
         .bead-4.active { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
         .bead-5.active { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); }
-        
+
         .button {
             background: linear-gradient(135deg, #6a5acd 0%, #836fff 100%);
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            border-radius: 50px;
+            padding: 0.9375rem 2.5rem;
+            font-size: 1.1rem;
+            border-radius: 3.125rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(106, 90, 205, 0.4);
-            margin: 20px 0;
+            box-shadow: 0 0.3125rem 0.9375rem rgba(106, 90, 205, 0.4);
             width: 100%;
-            max-width: 300px;
+            max-width: 18.75rem;
         }
-        
-        .button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(106, 90, 205, 0.6);
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-0.1875rem);
+            box-shadow: 0 0.5rem 1.25rem rgba(106, 90, 205, 0.6);
         }
-        
-        .button:active {
-            transform: translateY(1px);
-        }
-        
+
         .button:disabled {
             background: #cccccc;
             cursor: not-allowed;
-            transform: none;
             box-shadow: none;
         }
-        
+
         .message-container {
-            margin: 25px 0;
-            min-height: 80px;
+            margin: 1.5625rem 0;
+            min-height: 5rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            width: 100%;
         }
-        
+
         .message {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             color: #6a5acd;
             font-weight: 500;
             transition: opacity 0.5s ease;
-            padding: 15px 25px;
-            border-radius: 15px;
+            padding: 0.9375rem 1.5625rem;
+            border-radius: 0.9375rem;
             background: #f8f9fa;
-            margin: 10px 0;
+            margin: 0.625rem 0;
             width: 100%;
-            max-width: 400px;
+            max-width: 25rem;
         }
-        
+
         .message.sent {
             background: #e6f7ff;
             color: #1890ff;
         }
-        
+
         .message.received {
             background: #f6ffed;
             color: #52c41a;
         }
-        
+
         .connection-status {
-            margin-top: 20px;
-            padding: 12px 25px;
-            border-radius: 20px;
+            margin-top: 1.25rem;
+            padding: 0.75rem 1.5625rem;
+            border-radius: 1.25rem;
             background: #f0f0f0;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 0.625rem;
             width: 100%;
-            max-width: 300px;
+            max-width: 18.75rem;
         }
-        
+
         .status-dot {
-            width: 12px;
-            height: 12px;
+            width: 0.75rem;
+            height: 0.75rem;
             border-radius: 50%;
             background: #4CAF50;
             animation: pulse 2s infinite;
         }
-        
+
         .status-dot.offline {
             background: #f44336;
             animation: none;
         }
-        
+
         @keyframes pulse {
-            0% { opacity: 1; }
+            0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
-            100% { opacity: 1; }
         }
-        
+
         .friend-info {
-            margin-top: 30px;
-            padding: 15px;
+            margin-top: 1.875rem;
+            padding: 0.9375rem;
             background: #f8f9fa;
-            border-radius: 15px;
+            border-radius: 0.9375rem;
             width: 100%;
         }
-        
+
         .friend-info h3 {
             color: #6a5acd;
-            margin-bottom: 10px;
+            margin-bottom: 0.625rem;
         }
-        
+
         .instructions {
-            margin-top: 40px;
+            margin-top: 2.5rem;
             background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 500px;
+            padding: 1.25rem;
+            border-radius: 0.9375rem;
+            box-shadow: 0 0.3125rem 0.9375rem rgba(0,0,0,0.05);
+            width: min(100%, 32rem);
         }
-        
+
         .instructions h2 {
             color: #6a5acd;
-            margin-bottom: 15px;
+            margin-bottom: 0.9375rem;
             text-align: center;
         }
-        
+
         .instructions p {
-            margin-bottom: 10px;
+            margin-bottom: 0.625rem;
             line-height: 1.5;
         }
-        
+
         .user-selector {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 0.9375rem;
+            margin-bottom: 1.25rem;
         }
-        
+
         .user-btn {
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border: 2px solid #6a5acd;
             background: white;
             color: #6a5acd;
-            border-radius: 10px;
+            border-radius: 0.625rem;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 500;
         }
-        
+
         .user-btn.active {
             background: #6a5acd;
             color: white;
         }
-        
+
+        .user-btn:focus {
+            outline: 2px solid #6a5acd;
+            outline-offset: 2px;
+        }
+
         .hidden {
             display: none;
         }
-        
+
         @media (max-width: 600px) {
             .container {
-                padding: 20px;
+                padding: 1.25rem;
             }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
+
             .bracelet {
-                height: 100px;
-                padding: 0 15px;
+                height: 6.25rem;
+                padding: 0 0.9375rem;
             }
-            
+
             .bead {
-                width: 60px;
-                height: 60px;
+                width: 3.75rem;
+                height: 3.75rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="user-selector">
-        <button class="user-btn active" id="user1-btn">View as User 1</button>
-        <button class="user-btn" id="user2-btn">View as User 2</button>
+    <div class="user-selector" role="tablist">
+        <button class="user-btn active" id="user1-btn" role="tab" aria-selected="true" aria-controls="user1-view">View as User 1</button>
+        <button class="user-btn" id="user2-btn" role="tab" aria-selected="false" aria-controls="user2-view">View as User 2</button>
     </div>
-    
-    <!-- User 1 View -->
-    <div class="container" id="user1-view">
+
+    <div class="container" id="user1-view" role="tabpanel" aria-labelledby="user1-btn">
         <h1>Friendship Bracelet</h1>
-        <p class="subtitle">When you click the button, your friend's bracelet will light up to show you're thinking of them!</p>
-        
-        <div class="bracelet">
+        <p class="subtitle">Send a colorful signal to your friend's bracelet!</p>
+        <div class="bracelet" aria-label="Friendship bracelet display">
             <div class="bead bead-1"></div>
             <div class="bead bead-2"></div>
             <div class="bead bead-3"></div>
             <div class="bead bead-4"></div>
             <div class="bead bead-5"></div>
         </div>
-        
-        <button class="button" id="send-to-friend">Send Love to Friend</button>
-        
+        <button class="button" id="send-to-friend" aria-label="Send love to friend">Send Love to Friend</button>
         <div class="message-container">
-            <div class="message" id="user1-sent-message"></div>
-            <div class="message received" id="user1-received-message">No messages yet</div>
+            <div class="message" id="user1-sent-message" aria-live="polite"></div>
+            <div class="message received" id="user1-received-message" aria-live="polite">No messages yet</div>
         </div>
-        
         <div class="connection-status">
-            <div class="status-dot" id="user1-status"></div>
+            <div class="status-dot" id="user1-status" aria-hidden="true"></div>
             <span>Connected to friend</span>
         </div>
-        
         <div class="friend-info">
             <h3>Your Friend</h3>
-            <p>When your friend is thinking of you, your bracelet will light up with colorful beads!</p>
+            <p>Your bracelet lights up when your friend sends love!</p>
         </div>
     </div>
-    
-    <!-- User 2 View -->
-    <div class="container hidden" id="user2-view">
+
+    <div class="container hidden" id="user2-view" role="tabpanel" aria-labelledby="user2-btn">
         <h1>Friendship Bracelet</h1>
-        <p class="subtitle">When you click the button, your friend's bracelet will light up to show you're thinking of them!</p>
-        
-        <div class="bracelet">
+        <p class="subtitle">Send a colorful signal to your friend's bracelet!</p>
+        <div class="bracelet" aria-label="Friendship bracelet display">
             <div class="bead bead-1"></div>
             <div class="bead bead-2"></div>
             <div class="bead bead-3"></div>
             <div class="bead bead-4"></div>
             <div class="bead bead-5"></div>
         </div>
-        
-        <button class="button" id="send-to-user">Send Love to Friend</button>
-        
+        <button class="button" id="send-to-user" aria-label="Send love to friend">Send Love to Friend</button>
         <div class="message-container">
-            <div class="message" id="user2-sent-message"></div>
-            <div class="message received" id="user2-received-message">No messages yet</div>
+            <div class="message" id="user2-sent-message" aria-live="polite"></div>
+            <div class="message received" id="user2-received-message" aria-live="polite">No messages yet</div>
         </div>
-        
         <div class="connection-status">
-            <div class="status-dot" id="user2-status"></div>
+            <div class="status-dot" id="user2-status" aria-hidden="true"></div>
             <span>Connected to friend</span>
         </div>
-        
         <div class="friend-info">
             <h3>Your Friend</h3>
-            <p>When your friend is thinking of you, your bracelet will light up with colorful beads!</p>
+            <p>Your bracelet lights up when your friend sends love!</p>
         </div>
     </div>
-    
+
     <div class="instructions">
         <h2>How It Works</h2>
-        <p>1. Select "User 1" or "User 2" to view each person's perspective</p>
+        <p>1. Switch between User 1 and User 2 perspectives</p>
         <p>2. Click "Send Love to Friend" to light up your friend's bracelet</p>
-        <p>3. The bracelet will light up with colorful beads when your friend is thinking of you</p>
-        <p>4. In a real implementation, this would work across different devices using real-time communication</p>
+        <p>3. Watch the bracelet glow when your friend sends love</p>
+        <p>4. In a real app, this would work across devices in real-time</p>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // UI Elements
-            const user1View = document.getElementById('user1-view');
-            const user2View = document.getElementById('user2-view');
-            const user1Btn = document.getElementById('user1-btn');
-            const user2Btn = document.getElementById('user2-btn');
-            
-            // User 1 Elements
-            const user1Beads = user1View.querySelectorAll('.bead');
-            const sendToFriendBtn1 = document.getElementById('send-to-friend');
-            const user1SentMessage = document.getElementById('user1-sent-message');
-            const user1ReceivedMessage = document.getElementById('user1-received-message');
-            const user1Status = document.getElementById('user1-status');
-            
-            // User 2 Elements
-            const user2Beads = user2View.querySelectorAll('.bead');
-            const sendToUserBtn2 = document.getElementById('send-to-user');
-            const user2SentMessage = document.getElementById('user2-sent-message');
-            const user2ReceivedMessage = document.getElementById('user2-received-message');
-            const user2Status = document.getElementById('user2-status');
-            
-            // State
-            let currentUser = 'user1';
-            
-            // User selection
-            user1Btn.addEventListener('click', function() {
-                user1View.classList.remove('hidden');
-                user2View.classList.add('hidden');
-                user1Btn.classList.add('active');
-                user2Btn.classList.remove('active');
-                currentUser = 'user1';
-            });
-            
-            user2Btn.addEventListener('click', function() {
-                user2View.classList.remove('hidden');
-                user1View.classList.add('hidden');
-                user2Btn.classList.add('active');
-                user1Btn.classList.remove('active');
-                currentUser = 'user2';
-            });
-            
-            // Function to light up beads with animation
-            function lightUpBeads(beads, messageElement, senderName) {
-                // Reset all beads
-                beads.forEach(bead => bead.classList.remove('active'));
-                
-                // Light up beads one by one with delay
-                beads.forEach((bead, index) => {
+        (function () {
+            const CONFIG = {
+                BEAD_ANIMATION_DELAY: 300,
+                MESSAGE_DISPLAY_DURATION: 3000,
+                BEAD_RESET_DURATION: 4000,
+                INITIAL_MESSAGE_DELAY: 3000
+            };
+
+            class FriendshipBracelet {
+                constructor() {
+                    this.elements = {
+                        user1: {
+                            view: document.getElementById('user1-view'),
+                            btn: document.getElementById('user1-btn'),
+                            beads: document.querySelectorAll('#user1-view .bead'),
+                            sendBtn: document.getElementById('send-to-friend'),
+                            sentMessage: document.getElementById('user1-sent-message'),
+                            receivedMessage: document.getElementById('user1-received-message'),
+                            status: document.getElementById('user1-status')
+                        },
+                        user2: {
+                            view: document.getElementById('user2-view'),
+                            btn: document.getElementById('user2-btn'),
+                            beads: document.querySelectorAll('#user2-view .bead'),
+                            sendBtn: document.getElementById('send-to-user'),
+                            sentMessage: document.getElementById('user2-sent-message'),
+                            receivedMessage: document.getElementById('user2-received-message'),
+                            status: document.getElementById('user2-status')
+                        }
+                    };
+                    this.currentUser = 'user1';
+                    this.init();
+                }
+
+                init() {
+                    this.setupEventListeners();
+                    this.initializeStatus();
+                    this.simulateRandomMessage();
+                }
+
+                setupEventListeners() {
+                    this.elements.user1.btn.addEventListener('click', () => this.switchUser('user1'));
+                    this.elements.user2.btn.addEventListener('click', () => this.switchUser('user2'));
+                    this.elements.user1.sendBtn.addEventListener('click', () => this.handleSend('user1', 'user2'));
+                    this.elements.user2.sendBtn.addEventListener('click', () => this.handleSend('user2', 'user1'));
+                }
+
+                switchUser(user) {
+                    try {
+                        const { user1, user2 } = this.elements;
+                        user1.view.classList.toggle('hidden', user !== 'user1');
+                        user2.view.classList.toggle('hidden', user !== 'user2');
+                        user1.btn.classList.toggle('active', user === 'user1');
+                        user2.btn.classList.toggle('active', user === 'user2');
+                        user1.btn.setAttribute('aria-selected', user === 'user1');
+                        user2.btn.setAttribute('aria-selected', user === 'user2');
+                        this.currentUser = user;
+                    } catch (error) {
+                        console.error('Error switching user:', error);
+                    }
+                }
+
+                lightUpBeads(beads, messageElement, senderName) {
+                    try {
+                        beads.forEach(bead => bead.classList.remove('active'));
+                        beads.forEach((bead, index) => {
+                            setTimeout(() => bead.classList.add('active'), index * CONFIG.BEAD_ANIMATION_DELAY);
+                        });
+
+                        messageElement.textContent = `${senderName} is thinking of you! 💖`;
+                        messageElement.classList.add('received');
+
+                        setTimeout(() => {
+                            messageElement.textContent = '';
+                            messageElement.classList.remove('received');
+                            beads.forEach(bead => bead.classList.remove('active'));
+                        }, CONFIG.BEAD_RESET_DURATION);
+                    } catch (error) {
+                        console.error('Error in lightUpBeads:', error);
+                    }
+                }
+
+                showSentMessage(messageElement, recipientName) {
+                    try {
+                        messageElement.textContent = `You sent love to ${recipientName}! 💕`;
+                        messageElement.classList.add('sent');
+                        setTimeout(() => {
+                            messageElement.textContent = '';
+                            messageElement.classList.remove('sent');
+                        }, CONFIG.MESSAGE_DISPLAY_DURATION);
+                    } catch (error) {
+                        console.error('Error in showSentMessage:', error);
+                    }
+                }
+
+                handleSend(sender, receiver) {
+                    try {
+                        const senderElements = this.elements[sender];
+                        const receiverElements = this.elements[receiver];
+                        this.showSentMessage(senderElements.sentMessage, 'your friend');
+                        if (this.currentUser === receiver) {
+                            this.lightUpBeads(receiverElements.beads, receiverElements.receivedMessage, sender.charAt(0).toUpperCase() + sender.slice(1));
+                        }
+                    } catch (error) {
+                        console.error('Error in handleSend:', error);
+                    }
+                }
+
+                initializeStatus() {
+                    try {
+                        Object.values(this.elements).forEach(user => user.status.classList.remove('offline'));
+                    } catch (error) {
+                        console.error('Error initializing status:', error);
+                    }
+                }
+
+                simulateRandomMessage() {
                     setTimeout(() => {
-                        bead.classList.add('active');
-                    }, index * 300);
-                });
-                
-                // Show message
-                messageElement.textContent = `${senderName} is thinking of you! 💖`;
-                messageElement.classList.add('received');
-                
-                // Reset message after 5 seconds
-                setTimeout(() => {
-                    messageElement.textContent = '';
-                    messageElement.classList.remove('received');
-                }, 5000);
-                
-                // Reset beads after animation completes
-                setTimeout(() => {
-                    beads.forEach(bead => {
-                        bead.classList.remove('active');
-                    });
-                }, 4000);
+                        try {
+                            if (Math.random() > 0.5 && this.currentUser === 'user1') {
+                                this.lightUpBeads(this.elements.user1.beads, this.elements.user1.receivedMessage, 'Your friend');
+                            } else if (Math.random() > 0.5 && this.currentUser === 'user2') {
+                                this.lightUpBeads(this.elements.user2.beads, this.elements.user2.receivedMessage, 'Your friend');
+                            }
+                        } catch (error) {
+                            console.error('Error in simulateRandomMessage:', error);
+                        }
+                    }, CONFIG.INITIAL_MESSAGE_DELAY);
+                }
             }
-            
-            // Function to show sent message
-            function showSentMessage(messageElement, recipientName) {
-                messageElement.textContent = `You sent love to ${recipientName}! 💕`;
-                messageElement.classList.add('sent');
-                
-                setTimeout(() => {
-                    messageElement.textContent = '';
-                    messageElement.classList.remove('sent');
-                }, 3000);
-            }
-            
-            // Event listeners for buttons
-            sendToFriendBtn1.addEventListener('click', function() {
-                // In a real app, this would send a signal to the other user's device
-                // For simulation, we'll just show the sent message
-                showSentMessage(user1SentMessage, 'your friend');
-                
-                // If we're viewing user 2, simulate receiving the message
-                if (currentUser === 'user2') {
-                    lightUpBeads(user2Beads, user2ReceivedMessage, 'User 1');
-                }
-            });
-            
-            sendToUserBtn2.addEventListener('click', function() {
-                // In a real app, this would send a signal to the other user's device
-                // For simulation, we'll just show the sent message
-                showSentMessage(user2SentMessage, 'your friend');
-                
-                // If we're viewing user 1, simulate receiving the message
-                if (currentUser === 'user1') {
-                    lightUpBeads(user1Beads, user1ReceivedMessage, 'User 2');
-                }
-            });
-            
-            // Initialize connection status
-            user1Status.classList.remove('offline');
-            user2Status.classList.remove('offline');
-            
-            // For demonstration, simulate receiving a message after 3 seconds
-            setTimeout(() => {
-                if (Math.random() > 0.5 && currentUser === 'user1') {
-                    lightUpBeads(user1Beads, user1ReceivedMessage, 'Your friend');
-                } else if (Math.random() > 0.5 && currentUser === 'user2') {
-                    lightUpBeads(user2Beads, user2ReceivedMessage, 'Your friend');
-                }
-            }, 3000);
-        });
+
+            document.addEventListener('DOMContentLoaded', () => new FriendshipBracelet());
+        })();
     </script>
 </body>
 </html>
