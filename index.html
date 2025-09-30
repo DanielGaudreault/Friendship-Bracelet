@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Virtual friendship bracelet to connect with friends through colorful animations">
-    <title>Friendship Bracelet Connection</title>
+    <meta name="description" content="Virtual friendship bracelet that lights up when friends send love">
+    <title>Friendship Bracelet</title>
     <style>
         * {
             margin: 0;
@@ -155,27 +155,9 @@
             animation: pulse 2s infinite;
         }
 
-        .status-dot.offline {
-            background: #f44336;
-            animation: none;
-        }
-
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
-        }
-
-        .friend-info {
-            margin-top: 1.875rem;
-            padding: 0.9375rem;
-            background: #f8f9fa;
-            border-radius: 0.9375rem;
-            width: 100%;
-        }
-
-        .friend-info h3 {
-            color: #6a5acd;
-            margin-bottom: 0.625rem;
         }
 
         .instructions {
@@ -198,37 +180,6 @@
             line-height: 1.5;
         }
 
-        .user-selector {
-            display: flex;
-            gap: 0.9375rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .user-btn {
-            padding: 0.625rem 1.25rem;
-            border: 2px solid #6a5acd;
-            background: white;
-            color: #6a5acd;
-            border-radius: 0.625rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .user-btn.active {
-            background: #6a5acd;
-            color: white;
-        }
-
-        .user-btn:focus {
-            outline: 2px solid #6a5acd;
-            outline-offset: 2px;
-        }
-
-        .hidden {
-            display: none;
-        }
-
         @media (max-width: 600px) {
             .container {
                 padding: 1.25rem;
@@ -247,14 +198,9 @@
     </style>
 </head>
 <body>
-    <div class="user-selector" role="tablist">
-        <button class="user-btn active" id="user1-btn" role="tab" aria-selected="true" aria-controls="user1-view">View as User 1</button>
-        <button class="user-btn" id="user2-btn" role="tab" aria-selected="false" aria-controls="user2-view">View as User 2</button>
-    </div>
-
-    <div class="container" id="user1-view" role="tabpanel" aria-labelledby="user1-btn">
+    <div class="container">
         <h1>Friendship Bracelet</h1>
-        <p class="subtitle">Send a colorful signal to your friend's bracelet!</p>
+        <p class="subtitle">Send a colorful signal to light up your friend's bracelet!</p>
         <div class="bracelet" aria-label="Friendship bracelet display">
             <div class="bead bead-1"></div>
             <div class="bead bead-2"></div>
@@ -262,52 +208,23 @@
             <div class="bead bead-4"></div>
             <div class="bead bead-5"></div>
         </div>
-        <button class="button" id="send-to-friend" aria-label="Send love to friend">Send Love to Friend</button>
+        <button class="button" id="send-love" aria-label="Send love to friend">Send Love to Friend</button>
         <div class="message-container">
-            <div class="message" id="user1-sent-message" aria-live="polite"></div>
-            <div class="message received" id="user1-received-message" aria-live="polite">No messages yet</div>
+            <div class="message" id="sent-message" aria-live="polite"></div>
+            <div class="message received" id="received-message" aria-live="polite">No messages yet</div>
         </div>
         <div class="connection-status">
-            <div class="status-dot" id="user1-status" aria-hidden="true"></div>
-            <span>Connected to friend</span>
-        </div>
-        <div class="friend-info">
-            <h3>Your Friend</h3>
-            <p>Your bracelet lights up when your friend sends love!</p>
-        </div>
-    </div>
-
-    <div class="container hidden" id="user2-view" role="tabpanel" aria-labelledby="user2-btn">
-        <h1>Friendship Bracelet</h1>
-        <p class="subtitle">Send a colorful signal to your friend's bracelet!</p>
-        <div class="bracelet" aria-label="Friendship bracelet display">
-            <div class="bead bead-1"></div>
-            <div class="bead bead-2"></div>
-            <div class="bead bead-3"></div>
-            <div class="bead bead-4"></div>
-            <div class="bead bead-5"></div>
-        </div>
-        <button class="button" id="send-to-user" aria-label="Send love to friend">Send Love to Friend</button>
-        <div class="message-container">
-            <div class="message" id="user2-sent-message" aria-live="polite"></div>
-            <div class="message received" id="user2-received-message" aria-live="polite">No messages yet</div>
-        </div>
-        <div class="connection-status">
-            <div class="status-dot" id="user2-status" aria-hidden="true"></div>
-            <span>Connected to friend</span>
-        </div>
-        <div class="friend-info">
-            <h3>Your Friend</h3>
-            <p>Your bracelet lights up when your friend sends love!</p>
+            <div class="status-dot" aria-hidden="true"></div>
+            <span>Connected to friends</span>
         </div>
     </div>
 
     <div class="instructions">
         <h2>How It Works</h2>
-        <p>1. Switch between User 1 and User 2 perspectives</p>
-        <p>2. Click "Send Love to Friend" to light up your friend's bracelet</p>
-        <p>3. Watch the bracelet glow when your friend sends love</p>
-        <p>4. In a real app, this would work across devices in real-time</p>
+        <p>1. Click "Send Love to Friend" to light up bracelets in other tabs</p>
+        <p>2. Your bracelet lights up when another tab sends love</p>
+        <p>3. Open this page in multiple browser tabs to see the effect</p>
+        <p>4. Works within the same browser on the same device</p>
     </div>
 
     <script>
@@ -316,129 +233,111 @@
                 BEAD_ANIMATION_DELAY: 300,
                 MESSAGE_DISPLAY_DURATION: 3000,
                 BEAD_RESET_DURATION: 4000,
-                INITIAL_MESSAGE_DELAY: 3000
+                CHANNEL_NAME: 'friendship-bracelet-channel'
             };
 
             class FriendshipBracelet {
                 constructor() {
                     this.elements = {
-                        user1: {
-                            view: document.getElementById('user1-view'),
-                            btn: document.getElementById('user1-btn'),
-                            beads: document.querySelectorAll('#user1-view .bead'),
-                            sendBtn: document.getElementById('send-to-friend'),
-                            sentMessage: document.getElementById('user1-sent-message'),
-                            receivedMessage: document.getElementById('user1-received-message'),
-                            status: document.getElementById('user1-status')
-                        },
-                        user2: {
-                            view: document.getElementById('user2-view'),
-                            btn: document.getElementById('user2-btn'),
-                            beads: document.querySelectorAll('#user2-view .bead'),
-                            sendBtn: document.getElementById('send-to-user'),
-                            sentMessage: document.getElementById('user2-sent-message'),
-                            receivedMessage: document.getElementById('user2-received-message'),
-                            status: document.getElementById('user2-status')
-                        }
+                        beads: document.querySelectorAll('.bead'),
+                        sendBtn: document.getElementById('send-love'),
+                        sentMessage: document.getElementById('sent-message'),
+                        receivedMessage: document.getElementById('received-message')
                     };
-                    this.currentUser = 'user1';
+                    this.channel = null;
                     this.init();
                 }
 
                 init() {
+                    this.setupBroadcastChannel();
                     this.setupEventListeners();
-                    this.initializeStatus();
-                    this.simulateRandomMessage();
                 }
 
-                setupEventListeners() {
-                    this.elements.user1.btn.addEventListener('click', () => this.switchUser('user1'));
-                    this.elements.user2.btn.addEventListener('click', () => this.switchUser('user2'));
-                    this.elements.user1.sendBtn.addEventListener('click', () => this.handleSend('user1', 'user2'));
-                    this.elements.user2.sendBtn.addEventListener('click', () => this.handleSend('user2', 'user1'));
-                }
-
-                switchUser(user) {
+                setupBroadcastChannel() {
                     try {
-                        const { user1, user2 } = this.elements;
-                        user1.view.classList.toggle('hidden', user !== 'user1');
-                        user2.view.classList.toggle('hidden', user !== 'user2');
-                        user1.btn.classList.toggle('active', user === 'user1');
-                        user2.btn.classList.toggle('active', user === 'user2');
-                        user1.btn.setAttribute('aria-selected', user === 'user1');
-                        user2.btn.setAttribute('aria-selected', user === 'user2');
-                        this.currentUser = user;
+                        if (!window.BroadcastChannel) {
+                            console.warn('BroadcastChannel not supported in this browser');
+                            this.elements.sentMessage.textContent = 'Browser does not support cross-tab communication';
+                            this.elements.sentMessage.classList.add('sent');
+                            setTimeout(() => {
+                                this.elements.sentMessage.textContent = '';
+                                this.elements.sentMessage.classList.remove('sent');
+                            }, CONFIG.MESSAGE_DISPLAY_DURATION);
+                            return;
+                        }
+
+                        this.channel = new BroadcastChannel(CONFIG.CHANNEL_NAME);
+                        this.channel.onmessage = (event) => {
+                            try {
+                                const data = event.data;
+                                if (data.type === 'receive-love') {
+                                    this.lightUpBeads(data.sender);
+                                }
+                            } catch (error) {
+                                console.error('Error processing BroadcastChannel message:', error);
+                            }
+                        };
                     } catch (error) {
-                        console.error('Error switching user:', error);
+                        console.error('Error setting up BroadcastChannel:', error);
                     }
                 }
 
-                lightUpBeads(beads, messageElement, senderName) {
+                setupEventListeners() {
+                    this.elements.sendBtn.addEventListener('click', () => this.handleSend());
+                }
+
+                handleSend() {
                     try {
-                        beads.forEach(bead => bead.classList.remove('active'));
-                        beads.forEach((bead, index) => {
+                        if (this.channel) {
+                            this.channel.postMessage({
+                                type: 'receive-love',
+                                sender: 'A friend'
+                            });
+                            this.showSentMessage();
+                        } else {
+                            this.elements.sentMessage.textContent = 'Cannot send: Cross-tab communication not available';
+                            this.elements.sentMessage.classList.add('sent');
+                            setTimeout(() => {
+                                this.elements.sentMessage.textContent = '';
+                                this.elements.sentMessage.classList.remove('sent');
+                            }, CONFIG.MESSAGE_DISPLAY_DURATION);
+                        }
+                    } catch (error) {
+                        console.error('Error sending message:', error);
+                    }
+                }
+
+                lightUpBeads(senderName) {
+                    try {
+                        this.elements.beads.forEach(bead => bead.classList.remove('active'));
+                        this.elements.beads.forEach((bead, index) => {
                             setTimeout(() => bead.classList.add('active'), index * CONFIG.BEAD_ANIMATION_DELAY);
                         });
 
-                        messageElement.textContent = `${senderName} is thinking of you! 💖`;
-                        messageElement.classList.add('received');
+                        this.elements.receivedMessage.textContent = `${senderName} is thinking of you! 💖`;
+                        this.elements.receivedMessage.classList.add('received');
 
                         setTimeout(() => {
-                            messageElement.textContent = '';
-                            messageElement.classList.remove('received');
-                            beads.forEach(bead => bead.classList.remove('active'));
+                            this.elements.receivedMessage.textContent = '';
+                            this.elements.receivedMessage.classList.remove('received');
+                            this.elements.beads.forEach(bead => bead.classList.remove('active'));
                         }, CONFIG.BEAD_RESET_DURATION);
                     } catch (error) {
                         console.error('Error in lightUpBeads:', error);
                     }
                 }
 
-                showSentMessage(messageElement, recipientName) {
+                showSentMessage() {
                     try {
-                        messageElement.textContent = `You sent love to ${recipientName}! 💕`;
-                        messageElement.classList.add('sent');
+                        this.elements.sentMessage.textContent = 'You sent love to your friend! 💕';
+                        this.elements.sentMessage.classList.add('sent');
                         setTimeout(() => {
-                            messageElement.textContent = '';
-                            messageElement.classList.remove('sent');
+                            this.elements.sentMessage.textContent = '';
+                            this.elements.sentMessage.classList.remove('sent');
                         }, CONFIG.MESSAGE_DISPLAY_DURATION);
                     } catch (error) {
                         console.error('Error in showSentMessage:', error);
                     }
-                }
-
-                handleSend(sender, receiver) {
-                    try {
-                        const senderElements = this.elements[sender];
-                        const receiverElements = this.elements[receiver];
-                        this.showSentMessage(senderElements.sentMessage, 'your friend');
-                        if (this.currentUser === receiver) {
-                            this.lightUpBeads(receiverElements.beads, receiverElements.receivedMessage, sender.charAt(0).toUpperCase() + sender.slice(1));
-                        }
-                    } catch (error) {
-                        console.error('Error in handleSend:', error);
-                    }
-                }
-
-                initializeStatus() {
-                    try {
-                        Object.values(this.elements).forEach(user => user.status.classList.remove('offline'));
-                    } catch (error) {
-                        console.error('Error initializing status:', error);
-                    }
-                }
-
-                simulateRandomMessage() {
-                    setTimeout(() => {
-                        try {
-                            if (Math.random() > 0.5 && this.currentUser === 'user1') {
-                                this.lightUpBeads(this.elements.user1.beads, this.elements.user1.receivedMessage, 'Your friend');
-                            } else if (Math.random() > 0.5 && this.currentUser === 'user2') {
-                                this.lightUpBeads(this.elements.user2.beads, this.elements.user2.receivedMessage, 'Your friend');
-                            }
-                        } catch (error) {
-                            console.error('Error in simulateRandomMessage:', error);
-                        }
-                    }, CONFIG.INITIAL_MESSAGE_DELAY);
                 }
             }
 
