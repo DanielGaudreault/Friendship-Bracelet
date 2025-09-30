@@ -2,8 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="Virtual friendship bracelet that lights up when friends send love">
+    <meta name="theme-color" content="#6a5acd">
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Friendship Bracelet">
+    <!-- Placeholder icon (replace with real 192x192 PNG for production) -->
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
     <title>Friendship Bracelet</title>
     <style>
         * {
@@ -11,6 +20,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Prevent tap highlight on mobile */
         }
 
         body {
@@ -21,6 +31,7 @@
             align-items: center;
             padding: 1.5rem;
             color: #333;
+            touch-action: manipulation; /* Improve mobile touch */
         }
 
         .container {
@@ -57,6 +68,7 @@
             margin: 1.875rem 0;
             box-shadow: inset 0 0 0.9375rem rgba(0,0,0,0.1);
             border: 2px solid #e9ecef;
+            touch-action: none; /* Prevent zoom on touch */
         }
 
         .bead {
@@ -90,9 +102,10 @@
             box-shadow: 0 0.3125rem 0.9375rem rgba(106, 90, 205, 0.4);
             width: 100%;
             max-width: 18.75rem;
+            min-height: 3rem; /* Larger tap target for mobile */
         }
 
-        .button:hover:not(:disabled) {
+        .button:hover:not(:disabled), .button:active:not(:disabled) {
             transform: translateY(-0.1875rem);
             box-shadow: 0 0.5rem 1.25rem rgba(106, 90, 205, 0.6);
         }
@@ -182,6 +195,20 @@
             color: #333;
         }
 
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #6a5acd;
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 1.25rem;
@@ -195,6 +222,10 @@
             .bead {
                 width: 3.75rem;
                 height: 3.75rem;
+            }
+
+            .button {
+                font-size: 1.2rem; /* Larger for touch */
             }
         }
     </style>
@@ -227,6 +258,10 @@
         <p>Share this bracelet with those who matter most, and let the beads shine as a reminder of your bond!</p>
     </div>
 
+    <div class="install-prompt" id="install-prompt">
+        <p>Install this as an app for quick access! <button id="install-btn">Install</button></p>
+    </div>
+
     <script>
         (function () {
             const CONFIG = {
@@ -234,7 +269,9 @@
                 MESSAGE_DISPLAY_DURATION: 3000,
                 BEAD_RESET_DURATION: 4000,
                 CHANNEL_NAME: 'friendship-bracelet-channel',
-                STORAGE_KEY: 'pending-friendship-message'
+                STORAGE_KEY: 'pending-friendship-message',
+                LOCAL_STORAGE_KEY: 'friendship-signal',
+                POLL_INTERVAL: 500 // ms for localStorage polling
             };
 
             class FriendshipBracelet {
@@ -247,23 +284,43 @@
                     };
                     this.channel = null;
                     this.isTabFocused = document.visibilityState === 'visible';
+                    this.pollInterval = null;
                     this.init();
                 }
 
                 init() {
+                    this.setupPWA();
                     this.setupBroadcastChannel();
+                    this.setupLocalStoragePolling();
                     this.setupEventListeners();
                     this.checkPendingMessage();
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.register('/sw.js').catch(err => console.error('Service Worker registration failed:', err));
+                    }
+                }
+
+                setupPWA() {
+                    let deferredPrompt;
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        deferredPrompt = e;
+                        document.getElementById('install-prompt').style.display = 'block';
+                    });
+                    document.getElementById('install-btn').addEventListener('click', () => {
+                        deferredPrompt.prompt();
+                        deferredPrompt.userChoice.then(() => {
+                            deferredPrompt = null;
+                            document.getElementById('install-prompt').style.display = 'none';
+                        });
+                    });
                 }
 
                 setupBroadcastChannel() {
                     try {
                         if (!window.BroadcastChannel) {
-                            console.warn('BroadcastChannel not supported in this browser');
-                            this.showSentMessage('Browser does not support cross-tab communication', true);
+                            console.warn('BroadcastChannel not supported; using localStorage fallback');
                             return;
                         }
-
                         this.channel = new BroadcastChannel(CONFIG.CHANNEL_NAME);
                         this.channel.onmessage = (event) => {
                             try {
@@ -284,8 +341,31 @@
                     }
                 }
 
+                setupLocalStoragePolling() {
+                    // Fallback for cross-browser or no BroadcastChannel
+                    this.pollInterval = setInterval(() => {
+                        try {
+                            const signal = localStorage.getItem(CONFIG.LOCAL_STORAGE_KEY);
+                            if (signal) {
+                                const data = JSON.parse(signal);
+                                if (data.type === 'receive-love' && data.timestamp > (this.lastProcessed || 0)) {
+                                    this.lastProcessed = data.timestamp;
+                                    if (this.isTabFocused) {
+                                        this.lightUpBeads(data.sender);
+                                    } else {
+                                        sessionStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data));
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error polling localStorage:', error);
+                        }
+                    }, CONFIG.POLL_INTERVAL);
+                }
+
                 setupEventListeners() {
                     this.elements.sendBtn.addEventListener('click', () => this.handleSend());
+                    this.elements.sendBtn.addEventListener('touchstart', () => this.handleSend()); // Mobile touch
                     document.addEventListener('visibilitychange', () => this.handleVisibilityChange());
                 }
 
@@ -311,17 +391,21 @@
 
                 handleSend() {
                     try {
+                        const message = {
+                            type: 'receive-love',
+                            sender: 'A friend',
+                            timestamp: Date.now()
+                        };
+                        // Send via BroadcastChannel if available
                         if (this.channel) {
-                            this.channel.postMessage({
-                                type: 'receive-love',
-                                sender: 'A friend'
-                            });
-                            this.showSentMessage('You sent love to your friend! 💕');
-                        } else {
-                            this.showSentMessage('Cannot send: Cross-tab communication not available', true);
+                            this.channel.postMessage(message);
                         }
+                        // Always send via localStorage for cross-browser
+                        localStorage.setItem(CONFIG.LOCAL_STORAGE_KEY, JSON.stringify(message));
+                        this.showSentMessage('You sent love to your friend! 💕');
                     } catch (error) {
                         console.error('Error sending message:', error);
+                        this.showSentMessage('Cannot send: Communication not available', true);
                     }
                 }
 
@@ -329,7 +413,12 @@
                     try {
                         this.elements.beads.forEach(bead => bead.classList.remove('active'));
                         this.elements.beads.forEach((bead, index) => {
-                            setTimeout(() => bead.classList.add('active'), index * CONFIG.BEAD_ANIMATION_DELAY);
+                            setTimeout(() => {
+                                bead.classList.add('active');
+                                if ('vibrate' in navigator && index === 0) {
+                                    navigator.vibrate(50); // Haptic feedback on mobile
+                                }
+                            }, index * CONFIG.BEAD_ANIMATION_DELAY);
                         });
 
                         this.elements.receivedMessage.textContent = `${senderName} is thinking of you! 💖`;
