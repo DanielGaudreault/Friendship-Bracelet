@@ -2,24 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#6a5acd">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Virtual friendship bracelet that lights up when friends send love">
     <title>Friendship Bracelet</title>
-    <!-- iOS PWA Support -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Friendship Bracelet">
-    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==">
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent; /* Mobile tap fix */
         }
 
         body {
@@ -30,7 +21,6 @@
             align-items: center;
             padding: 1.5rem;
             color: #333;
-            touch-action: manipulation; /* Better mobile touch */
         }
 
         .container {
@@ -55,29 +45,6 @@
             line-height: 1.5;
         }
 
-        .room-section {
-            margin-bottom: 1.5rem;
-        }
-
-        .room-input {
-            padding: 0.75rem;
-            border: 2px solid #6a5acd;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            width: 70%;
-            max-width: 200px;
-        }
-
-        .connect-btn {
-            background: #6a5acd;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            margin-left: 0.5rem;
-        }
-
         .bracelet {
             width: 100%;
             height: 7.5rem;
@@ -90,7 +57,6 @@
             margin: 1.875rem 0;
             box-shadow: inset 0 0 0.9375rem rgba(0,0,0,0.1);
             border: 2px solid #e9ecef;
-            touch-action: none; /* Prevent zoom on touch */
         }
 
         .bead {
@@ -104,7 +70,6 @@
         .bead.active {
             transform: scale(1.15);
             box-shadow: 0 0 1.5625rem rgba(255,215,0,0.9);
-            /* Haptic on mobile */
         }
 
         .bead-1.active { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); }
@@ -125,10 +90,9 @@
             box-shadow: 0 0.3125rem 0.9375rem rgba(106, 90, 205, 0.4);
             width: 100%;
             max-width: 18.75rem;
-            min-height: 3rem; /* Larger for touch */
         }
 
-        .button:hover:not(:disabled), .button:active:not(:disabled) {
+        .button:hover:not(:disabled) {
             transform: translateY(-0.1875rem);
             box-shadow: 0 0.5rem 1.25rem rgba(106, 90, 205, 0.6);
         }
@@ -232,25 +196,6 @@
                 width: 3.75rem;
                 height: 3.75rem;
             }
-
-            .room-input, .connect-btn {
-                font-size: 1.1rem; /* Larger for mobile */
-            }
-        }
-
-        /* Install prompt for PWA */
-        .install-prompt {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #6a5acd;
-            color: white;
-            padding: 1rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            display: none;
         }
     </style>
 </head>
@@ -258,12 +203,6 @@
     <div class="container">
         <h1>Friendship Bracelet</h1>
         <p class="subtitle">Send a colorful signal to light up your friend's bracelet!</p>
-        
-        <div class="room-section">
-            <input type="text" class="room-input" id="room-id" placeholder="Enter room ID (e.g., friendship123)" maxlength="50">
-            <button class="connect-btn" id="connect-room">Connect</button>
-        </div>
-        
         <div class="bracelet" aria-label="Friendship bracelet display">
             <div class="bead bead-1"></div>
             <div class="bead bead-2"></div>
@@ -271,14 +210,14 @@
             <div class="bead bead-4"></div>
             <div class="bead bead-5"></div>
         </div>
-        <button class="button" id="send-love" aria-label="Send love to friend" disabled>Send Love to Friend</button>
+        <button class="button" id="send-love" aria-label="Send love to friend">Send Love to Friend</button>
         <div class="message-container">
             <div class="message" id="sent-message" aria-live="polite"></div>
             <div class="message received" id="received-message" aria-live="polite">No messages yet</div>
         </div>
         <div class="connection-status">
-            <div class="status-dot offline" id="status-dot" aria-hidden="true"></div>
-            <span id="status-text">Disconnected</span>
+            <div class="status-dot" aria-hidden="true"></div>
+            <span>Connected to friends</span>
         </div>
     </div>
 
@@ -288,11 +227,6 @@
         <p>Share this bracelet with those who matter most, and let the beads shine as a reminder of your bond!</p>
     </div>
 
-    <!-- PWA Install Prompt -->
-    <div class="install-prompt" id="install-prompt">
-        <p>Install this as an app for quick access! <button id="install-btn">Install</button></p>
-    </div>
-
     <script>
         (function () {
             const CONFIG = {
@@ -300,133 +234,59 @@
                 MESSAGE_DISPLAY_DURATION: 3000,
                 BEAD_RESET_DURATION: 4000,
                 CHANNEL_NAME: 'friendship-bracelet-channel',
-                STORAGE_KEY: 'pending-friendship-message',
-                FIREBASE_DB: 'https://friendship-bracelet-default-rtdb.firebaseio.com/',
-                STUN_SERVERS: [{ urls: 'stun:stun.l.google.com:19302' }]
+                STORAGE_KEY: 'pending-friendship-message'
             };
 
             class FriendshipBracelet {
                 constructor() {
                     this.elements = {
-                        roomInput: document.getElementById('room-id'),
-                        connectBtn: document.getElementById('connect-room'),
                         beads: document.querySelectorAll('.bead'),
                         sendBtn: document.getElementById('send-love'),
                         sentMessage: document.getElementById('sent-message'),
-                        receivedMessage: document.getElementById('received-message'),
-                        statusDot: document.getElementById('status-dot'),
-                        statusText: document.getElementById('status-text')
+                        receivedMessage: document.getElementById('received-message')
                     };
                     this.channel = null;
                     this.isTabFocused = document.visibilityState === 'visible';
-                    this.pc = null; // WebRTC PeerConnection
-                    this.dataChannel = null;
-                    this.roomId = null;
-                    this.isConnected = false;
                     this.init();
                 }
 
                 init() {
-                    this.setupPWA();
-                    this.setupBroadcastChannel(); // Fallback
+                    this.setupBroadcastChannel();
                     this.setupEventListeners();
                     this.checkPendingMessage();
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.register('/sw.js').catch(err => console.error('SW registration failed', err));
-                    }
-                }
-
-                setupPWA() {
-                    let deferredPrompt;
-                    window.addEventListener('beforeinstallprompt', (e) => {
-                        e.preventDefault();
-                        deferredPrompt = e;
-                        document.getElementById('install-prompt').style.display = 'block';
-                    });
-                    document.getElementById('install-btn').addEventListener('click', () => {
-                        deferredPrompt.prompt();
-                        deferredPrompt.userChoice.then(() => deferredPrompt = null);
-                    });
                 }
 
                 setupBroadcastChannel() {
-                    if (!window.BroadcastChannel) return;
-                    this.channel = new BroadcastChannel(CONFIG.CHANNEL_NAME);
-                    this.channel.onmessage = (event) => {
-                        if (event.data.type === 'receive-love' && !this.isConnected) { // Fallback if no P2P
-                            this.handleReceive(event.data.sender);
+                    try {
+                        if (!window.BroadcastChannel) {
+                            console.warn('BroadcastChannel not supported in this browser');
+                            this.showSentMessage('Browser does not support cross-tab communication', true);
+                            return;
                         }
-                    };
+
+                        this.channel = new BroadcastChannel(CONFIG.CHANNEL_NAME);
+                        this.channel.onmessage = (event) => {
+                            try {
+                                const data = event.data;
+                                if (data.type === 'receive-love') {
+                                    if (this.isTabFocused) {
+                                        this.lightUpBeads(data.sender);
+                                    } else {
+                                        sessionStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data));
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error processing BroadcastChannel message:', error);
+                            }
+                        };
+                    } catch (error) {
+                        console.error('Error setting up BroadcastChannel:', error);
+                    }
                 }
 
                 setupEventListeners() {
-                    this.elements.connectBtn.addEventListener('click', () => this.connectToRoom());
                     this.elements.sendBtn.addEventListener('click', () => this.handleSend());
                     document.addEventListener('visibilitychange', () => this.handleVisibilityChange());
-                    if ('vibrate' in navigator) {
-                        // Haptic on mobile - triggered in lightUpBeads
-                    }
-                }
-
-                async connectToRoom() {
-                    this.roomId = this.elements.roomInput.value.trim() || 'default-room';
-                    this.elements.statusText.textContent = 'Connecting...';
-                    this.statusDot.classList.add('offline');
-                    try {
-                        await this.initWebRTC();
-                        this.isConnected = true;
-                        this.elements.statusText.textContent = 'Connected P2P';
-                        this.elements.statusDot.classList.remove('offline');
-                        this.elements.sendBtn.disabled = false;
-                        this.showSentMessage(`Connected to room: ${this.roomId}`);
-                    } catch (error) {
-                        console.error('Connection failed:', error);
-                        this.elements.statusText.textContent = 'Fallback mode';
-                        this.elements.sendBtn.disabled = false; // Enable for BroadcastChannel
-                    }
-                }
-
-                async initWebRTC() {
-                    this.pc = new RTCPeerConnection({ iceServers: CONFIG.STUN_SERVERS });
-                    this.dataChannel = this.pc.createDataChannel('love-channel');
-                    this.dataChannel.onopen = () => console.log('P2P channel open');
-                    this.dataChannel.onmessage = (event) => this.handleReceive(JSON.parse(event.data).sender);
-
-                    this.pc.onicecandidate = (event) => {
-                        if (event.candidate) {
-                            this.sendSignaling({ candidate: event.candidate });
-                        }
-                    };
-
-                    const offer = await this.pc.createOffer();
-                    await this.pc.setLocalDescription(offer);
-                    this.sendSignaling({ sdp: this.pc.localDescription });
-
-                    // Poll Firebase for answers/candidates (simple signaling)
-                    const signalingRef = firebase.database().ref(`rooms/${this.roomId}`);
-                    signalingRef.on('child_added', (snapshot) => {
-                        const data = snapshot.val();
-                        if (data.sdp && !this.pc.remoteDescription) {
-                            this.pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
-                        } else if (data.candidate) {
-                            this.pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-                        }
-                    });
-                }
-
-                sendSignaling(message) {
-                    // Send to Firebase for other peers
-                    if (this.roomId) {
-                        firebase.database().ref(`rooms/${this.roomId}`).push(message);
-                    }
-                }
-
-                handleReceive(senderName) {
-                    if (this.isTabFocused) {
-                        this.lightUpBeads(senderName);
-                    } else {
-                        localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify({ sender: senderName, timestamp: Date.now() }));
-                    }
                 }
 
                 handleVisibilityChange() {
@@ -437,70 +297,71 @@
                 }
 
                 checkPendingMessage() {
-                    const pending = localStorage.getItem(CONFIG.STORAGE_KEY);
-                    if (pending) {
-                        const data = JSON.parse(pending);
-                        this.lightUpBeads(data.sender);
-                        localStorage.removeItem(CONFIG.STORAGE_KEY);
+                    try {
+                        const pendingMessage = sessionStorage.getItem(CONFIG.STORAGE_KEY);
+                        if (pendingMessage) {
+                            const data = JSON.parse(pendingMessage);
+                            this.lightUpBeads(data.sender);
+                            sessionStorage.removeItem(CONFIG.STORAGE_KEY);
+                        }
+                    } catch (error) {
+                        console.error('Error checking pending message:', error);
                     }
                 }
 
                 handleSend() {
-                    if (this.isConnected && this.dataChannel && this.dataChannel.readyState === 'open') {
-                        this.dataChannel.send(JSON.stringify({ type: 'receive-love', sender: 'A friend' }));
-                    } else if (this.channel) {
-                        this.channel.postMessage({ type: 'receive-love', sender: 'A friend' });
-                    } else {
-                        this.showSentMessage('Cannot send: No connection', true);
-                        return;
+                    try {
+                        if (this.channel) {
+                            this.channel.postMessage({
+                                type: 'receive-love',
+                                sender: 'A friend'
+                            });
+                            this.showSentMessage('You sent love to your friend! 💕');
+                        } else {
+                            this.showSentMessage('Cannot send: Cross-tab communication not available', true);
+                        }
+                    } catch (error) {
+                        console.error('Error sending message:', error);
                     }
-                    this.showSentMessage('You sent love to your friend! 💕');
                 }
 
                 lightUpBeads(senderName) {
-                    this.elements.beads.forEach(bead => bead.classList.remove('active'));
-                    this.elements.beads.forEach((bead, index) => {
-                        setTimeout(() => {
-                            bead.classList.add('active');
-                            if ('vibrate' in navigator && index === 0) navigator.vibrate(50); // Haptic
-                        }, index * CONFIG.BEAD_ANIMATION_DELAY);
-                    });
+                    try {
+                        this.elements.beads.forEach(bead => bead.classList.remove('active'));
+                        this.elements.beads.forEach((bead, index) => {
+                            setTimeout(() => bead.classList.add('active'), index * CONFIG.BEAD_ANIMATION_DELAY);
+                        });
 
-                    this.elements.receivedMessage.textContent = `${senderName} is thinking of you! 💖`;
-                    this.elements.receivedMessage.classList.add('received');
+                        this.elements.receivedMessage.textContent = `${senderName} is thinking of you! 💖`;
+                        this.elements.receivedMessage.classList.add('received');
 
-                    if (this.isTabFocused) {
-                        setTimeout(() => {
-                            this.elements.receivedMessage.textContent = '';
-                            this.elements.receivedMessage.classList.remove('received');
-                            this.elements.beads.forEach(bead => bead.classList.remove('active'));
-                        }, CONFIG.BEAD_RESET_DURATION);
+                        if (this.isTabFocused) {
+                            setTimeout(() => {
+                                this.elements.receivedMessage.textContent = '';
+                                this.elements.receivedMessage.classList.remove('received');
+                                this.elements.beads.forEach(bead => bead.classList.remove('active'));
+                            }, CONFIG.BEAD_RESET_DURATION);
+                        }
+                    } catch (error) {
+                        console.error('Error in lightUpBeads:', error);
                     }
                 }
 
                 showSentMessage(message, isError = false) {
-                    this.elements.sentMessage.textContent = message;
-                    this.elements.sentMessage.classList.add(isError ? 'received' : 'sent');
-                    setTimeout(() => {
-                        this.elements.sentMessage.textContent = '';
-                        this.elements.sentMessage.classList.remove(isError ? 'received' : 'sent');
-                    }, CONFIG.MESSAGE_DISPLAY_DURATION);
+                    try {
+                        this.elements.sentMessage.textContent = message;
+                        this.elements.sentMessage.classList.add(isError ? 'received' : 'sent');
+                        setTimeout(() => {
+                            this.elements.sentMessage.textContent = '';
+                            this.elements.sentMessage.classList.remove(isError ? 'received' : 'sent');
+                        }, CONFIG.MESSAGE_DISPLAY_DURATION);
+                    } catch (error) {
+                        console.error('Error in showSentMessage:', error);
+                    }
                 }
             }
 
-            // Firebase SDK (loaded via CDN for no-install)
-            const script = document.createElement('script');
-            script.src = 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js';
-            script.onload = () => {
-                const appScript = document.createElement('script');
-                appScript.src = 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js';
-                appScript.onload = () => new FriendshipBracelet();
-                document.head.appendChild(appScript);
-            };
-            document.head.appendChild(script);
-
-            // Fallback if Firebase fails
-            window.firebase = window.firebase || { database: () => ({ ref: () => ({ on: () => {}, push: () => {} }) }) };
+            document.addEventListener('DOMContentLoaded', () => new FriendshipBracelet());
         })();
     </script>
 </body>
