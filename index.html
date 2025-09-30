@@ -160,24 +160,26 @@
             50% { opacity: 0.5; }
         }
 
-        .instructions {
+        .friendship-message {
             margin-top: 2.5rem;
             background: white;
             padding: 1.25rem;
             border-radius: 0.9375rem;
             box-shadow: 0 0.3125rem 0.9375rem rgba(0,0,0,0.05);
             width: min(100%, 32rem);
-        }
-
-        .instructions h2 {
-            color: #6a5acd;
-            margin-bottom: 0.9375rem;
             text-align: center;
         }
 
-        .instructions p {
+        .friendship-message h2 {
+            color: #6a5acd;
+            margin-bottom: 0.9375rem;
+            font-size: 1.5rem;
+        }
+
+        .friendship-message p {
             margin-bottom: 0.625rem;
             line-height: 1.5;
+            color: #333;
         }
 
         @media (max-width: 600px) {
@@ -219,12 +221,10 @@
         </div>
     </div>
 
-    <div class="instructions">
-        <h2>How It Works</h2>
-        <p>1. Click "Send Love to Friend" to light up bracelets in other tabs</p>
-        <p>2. Bracelets in background tabs stay lit until you view them</p>
-        <p>3. Open this page in multiple browser tabs to see the effect</p>
-        <p>4. Works within the same browser on the same device</p>
+    <div class="friendship-message">
+        <h2>Spread Joy with Every Glow</h2>
+        <p>Each time you send love, you're lighting up a friend's day with vibrant colors and warm thoughts.</p>
+        <p>Share this bracelet with those who matter most, and let the beads shine as a reminder of your bond!</p>
     </div>
 
     <script>
@@ -272,7 +272,6 @@
                                     if (this.isTabFocused) {
                                         this.lightUpBeads(data.sender);
                                     } else {
-                                        // Store message for later display
                                         sessionStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data));
                                     }
                                 }
@@ -336,7 +335,6 @@
                         this.elements.receivedMessage.textContent = `${senderName} is thinking of you! 💖`;
                         this.elements.receivedMessage.classList.add('received');
 
-                        // Only reset if the tab is currently focused
                         if (this.isTabFocused) {
                             setTimeout(() => {
                                 this.elements.receivedMessage.textContent = '';
