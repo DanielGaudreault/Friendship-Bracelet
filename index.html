@@ -222,7 +222,7 @@
     <div class="instructions">
         <h2>How It Works</h2>
         <p>1. Click "Send Love to Friend" to light up bracelets in other tabs</p>
-        <p>2. Your bracelet lights up when another tab sends love</p>
+        <p>2. Bracelets in background tabs stay lit until you view them</p>
         <p>3. Open this page in multiple browser tabs to see the effect</p>
         <p>4. Works within the same browser on the same device</p>
     </div>
@@ -233,7 +233,8 @@
                 BEAD_ANIMATION_DELAY: 300,
                 MESSAGE_DISPLAY_DURATION: 3000,
                 BEAD_RESET_DURATION: 4000,
-                CHANNEL_NAME: 'friendship-bracelet-channel'
+                CHANNEL_NAME: 'friendship-bracelet-channel',
+                STORAGE_KEY: 'pending-friendship-message'
             };
 
             class FriendshipBracelet {
@@ -245,24 +246,21 @@
                         receivedMessage: document.getElementById('received-message')
                     };
                     this.channel = null;
+                    this.isTabFocused = document.visibilityState === 'visible';
                     this.init();
                 }
 
                 init() {
                     this.setupBroadcastChannel();
                     this.setupEventListeners();
+                    this.checkPendingMessage();
                 }
 
                 setupBroadcastChannel() {
                     try {
                         if (!window.BroadcastChannel) {
                             console.warn('BroadcastChannel not supported in this browser');
-                            this.elements.sentMessage.textContent = 'Browser does not support cross-tab communication';
-                            this.elements.sentMessage.classList.add('sent');
-                            setTimeout(() => {
-                                this.elements.sentMessage.textContent = '';
-                                this.elements.sentMessage.classList.remove('sent');
-                            }, CONFIG.MESSAGE_DISPLAY_DURATION);
+                            this.showSentMessage('Browser does not support cross-tab communication', true);
                             return;
                         }
 
@@ -271,7 +269,12 @@
                             try {
                                 const data = event.data;
                                 if (data.type === 'receive-love') {
-                                    this.lightUpBeads(data.sender);
+                                    if (this.isTabFocused) {
+                                        this.lightUpBeads(data.sender);
+                                    } else {
+                                        // Store message for later display
+                                        sessionStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data));
+                                    }
                                 }
                             } catch (error) {
                                 console.error('Error processing BroadcastChannel message:', error);
@@ -284,6 +287,27 @@
 
                 setupEventListeners() {
                     this.elements.sendBtn.addEventListener('click', () => this.handleSend());
+                    document.addEventListener('visibilitychange', () => this.handleVisibilityChange());
+                }
+
+                handleVisibilityChange() {
+                    this.isTabFocused = document.visibilityState === 'visible';
+                    if (this.isTabFocused) {
+                        this.checkPendingMessage();
+                    }
+                }
+
+                checkPendingMessage() {
+                    try {
+                        const pendingMessage = sessionStorage.getItem(CONFIG.STORAGE_KEY);
+                        if (pendingMessage) {
+                            const data = JSON.parse(pendingMessage);
+                            this.lightUpBeads(data.sender);
+                            sessionStorage.removeItem(CONFIG.STORAGE_KEY);
+                        }
+                    } catch (error) {
+                        console.error('Error checking pending message:', error);
+                    }
                 }
 
                 handleSend() {
@@ -293,14 +317,9 @@
                                 type: 'receive-love',
                                 sender: 'A friend'
                             });
-                            this.showSentMessage();
+                            this.showSentMessage('You sent love to your friend! 💕');
                         } else {
-                            this.elements.sentMessage.textContent = 'Cannot send: Cross-tab communication not available';
-                            this.elements.sentMessage.classList.add('sent');
-                            setTimeout(() => {
-                                this.elements.sentMessage.textContent = '';
-                                this.elements.sentMessage.classList.remove('sent');
-                            }, CONFIG.MESSAGE_DISPLAY_DURATION);
+                            this.showSentMessage('Cannot send: Cross-tab communication not available', true);
                         }
                     } catch (error) {
                         console.error('Error sending message:', error);
@@ -317,23 +336,26 @@
                         this.elements.receivedMessage.textContent = `${senderName} is thinking of you! 💖`;
                         this.elements.receivedMessage.classList.add('received');
 
-                        setTimeout(() => {
-                            this.elements.receivedMessage.textContent = '';
-                            this.elements.receivedMessage.classList.remove('received');
-                            this.elements.beads.forEach(bead => bead.classList.remove('active'));
-                        }, CONFIG.BEAD_RESET_DURATION);
+                        // Only reset if the tab is currently focused
+                        if (this.isTabFocused) {
+                            setTimeout(() => {
+                                this.elements.receivedMessage.textContent = '';
+                                this.elements.receivedMessage.classList.remove('received');
+                                this.elements.beads.forEach(bead => bead.classList.remove('active'));
+                            }, CONFIG.BEAD_RESET_DURATION);
+                        }
                     } catch (error) {
                         console.error('Error in lightUpBeads:', error);
                     }
                 }
 
-                showSentMessage() {
+                showSentMessage(message, isError = false) {
                     try {
-                        this.elements.sentMessage.textContent = 'You sent love to your friend! 💕';
-                        this.elements.sentMessage.classList.add('sent');
+                        this.elements.sentMessage.textContent = message;
+                        this.elements.sentMessage.classList.add(isError ? 'received' : 'sent');
                         setTimeout(() => {
                             this.elements.sentMessage.textContent = '';
-                            this.elements.sentMessage.classList.remove('sent');
+                            this.elements.sentMessage.classList.remove(isError ? 'received' : 'sent');
                         }, CONFIG.MESSAGE_DISPLAY_DURATION);
                     } catch (error) {
                         console.error('Error in showSentMessage:', error);
