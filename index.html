@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friendship Bracelet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #6a5acd;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            color: #7b68ee;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 1000px;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .bracelet-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .bracelet-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        .user-label {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #6a5acd;
+            font-weight: 600;
+        }
+        
+        .bracelet {
+            width: 300px;
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .bead {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: all 0.5s ease;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+        }
+        
+        .bead.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255,215,0,0.8);
+        }
+        
+        .bead-1.active { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); }
+        .bead-2.active { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+        .bead-3.active { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+        .bead-4.active { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+        .bead-5.active { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); }
+        
+        .button {
+            background: linear-gradient(135deg, #6a5acd 0%, #836fff 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(106, 90, 205, 0.4);
+        }
+        
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(106, 90, 205, 0.6);
+        }
+        
+        .button:active {
+            transform: translateY(1px);
+        }
+        
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #6a5acd;
+            font-weight: 500;
+            transition: opacity 0.5s ease;
+        }
+        
+        .connection-status {
+            margin-top: 30px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+        }
+        
+        .status-dot.offline {
+            background: #f44336;
+        }
+        
+        .instructions {
+            max-width: 800px;
+            margin-top: 40px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .instructions h2 {
+            color: #6a5acd;
+            margin-bottom: 15px;
+        }
+        
+        .instructions p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .bracelet-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Friendship Bracelet</h1>
+        <p class="subtitle">Click your bracelet to light up your friend's bracelet and let them know you're thinking of them!</p>
+    </header>
+    
+    <div class="container">
+        <div class="bracelet-container">
+            <div class="user-label">Your Bracelet</div>
+            <div class="bracelet">
+                <div class="bead bead-1"></div>
+                <div class="bead bead-2"></div>
+                <div class="bead bead-3"></div>
+                <div class="bead bead-4"></div>
+                <div class="bead bead-5"></div>
+            </div>
+            <button class="button" id="send-love">Send Love to Friend</button>
+            <div class="message" id="user-message">Waiting for your friend...</div>
+            <div class="connection-status">
+                <div class="status-dot" id="user-status"></div>
+                <span>Connected to friend</span>
+            </div>
+        </div>
+        
+        <div class="bracelet-container">
+            <div class="user-label">Friend's Bracelet</div>
+            <div class="bracelet">
+                <div class="bead bead-1"></div>
+                <div class="bead bead-2"></div>
+                <div class="bead bead-3"></div>
+                <div class="bead bead-4"></div>
+                <div class="bead bead-5"></div>
+            </div>
+            <button class="button" id="send-love-friend">Send Love to You</button>
+            <div class="message" id="friend-message">Waiting for you...</div>
+            <div class="connection-status">
+                <div class="status-dot" id="friend-status"></div>
+                <span>Connected to you</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="instructions">
+        <h2>How It Works</h2>
+        <p>1. Click "Send Love to Friend" to light up your friend's bracelet</p>
+        <p>2. Your friend will see their bracelet light up with colorful beads</p>
+        <p>3. Your friend can click "Send Love to You" to light up your bracelet</p>
+        <p>4. The connection status shows if you're both online</p>
+        <p>In a real implementation, this would work across different devices using WebSockets or a similar technology!</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userBeads = document.querySelectorAll('.bracelet-container:first-child .bead');
+            const friendBeads = document.querySelectorAll('.bracelet-container:last-child .bead');
+            const sendLoveBtn = document.getElementById('send-love');
+            const sendLoveFriendBtn = document.getElementById('send-love-friend');
+            const userMessage = document.getElementById('user-message');
+            const friendMessage = document.getElementById('friend-message');
+            const userStatus = document.getElementById('user-status');
+            const friendStatus = document.getElementById('friend-status');
+            
+            // Simulate connection status (in a real app, this would check actual connection)
+            function updateConnectionStatus() {
+                // For demo purposes, we'll assume both are always connected
+                userStatus.classList.remove('offline');
+                friendStatus.classList.remove('offline');
+            }
+            
+            // Function to light up beads with animation
+            function lightUpBeads(beads, messageElement, senderName) {
+                // Reset all beads
+                beads.forEach(bead => bead.classList.remove('active'));
+                
+                // Light up beads one by one with delay
+                beads.forEach((bead, index) => {
+                    setTimeout(() => {
+                        bead.classList.add('active');
+                    }, index * 300);
+                });
+                
+                // Show message
+                messageElement.textContent = `${senderName} is thinking of you! 💖`;
+                
+                // Reset message after 5 seconds
+                setTimeout(() => {
+                    messageElement.textContent = 'Waiting for your friend...';
+                }, 5000);
+                
+                // Reset beads after animation completes
+                setTimeout(() => {
+                    beads.forEach(bead => {
+                        bead.classList.remove('active');
+                    });
+                }, 4000);
+            }
+            
+            // Event listeners for buttons
+            sendLoveBtn.addEventListener('click', function() {
+                lightUpBeads(friendBeads, friendMessage, 'You');
+            });
+            
+            sendLoveFriendBtn.addEventListener('click', function() {
+                lightUpBeads(userBeads, userMessage, 'Your friend');
+            });
+            
+            // Initialize connection status
+            updateConnectionStatus();
+            
+            // For demonstration, simulate receiving a message after 3 seconds
+            setTimeout(() => {
+                if (Math.random() > 0.5) {
+                    lightUpBeads(userBeads, userMessage, 'Your friend');
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
